@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .card h3 {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .income {
+            color: var(--success);
+        }
+        
+        .expense {
+            color: var(--danger);
+        }
+        
+        .balance {
+            color: var(--primary);
+        }
+        
+        .transaction-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #d1145a;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #3ab0d6;
+        }
+        
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transactions {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .income-row {
+            color: var(--success);
+        }
+        
+        .expense-row {
+            color: var(--danger);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .export-btn {
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-wallet"></i> Personal Finance Tracker</h1>
+            <p>Track your income and expenses with ease</p>
+        </header>
+        
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Total Income</h3>
+                <p class="income" id="total-income">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Total Expenses</h3>
+                <p class="expense" id="total-expense">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Balance</h3>
+                <p class="balance" id="balance">$0.00</p>
+            </div>
+        </div>
+        
+        <div class="transaction-form">
+            <h2><i class="fas fa-plus-circle"></i> Add Transaction</h2>
+            <form id="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" required>
+                            <option value="">Select Type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select Category</option>
+                            <!-- Categories will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" placeholder="Optional description">
+                </div>
+                <button type="submit">Add Transaction</button>
+            </form>
+        </div>
+        
+        <div class="charts">
+            <div class="chart-container">
+                <h2><i class="fas fa-chart-pie"></i> Expense by Category</h2>
+                <canvas id="category-chart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2><i class="fas fa-chart-line"></i> Monthly Summary</h2>
+                <canvas id="monthly-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="transactions">
+            <h2><i class="fas fa-list"></i> Recent Transactions</h2>
+            <table id="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="transactions-body">
+                    <!-- Transactions will be populated by JavaScript -->
+                </tbody>
+            </table>
+            <button class="export-btn btn-success" id="export-csv">
+                <i class="fas fa-file-export"></i> Export to CSV
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const transactionForm = document.getElementById('transaction-form');
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('category');
+        const amountInput = document.getElementById('amount');
+        const dateInput = document.getElementById('date');
+        const descriptionInput = document.getElementById('description');
+        const transactionsBody = document.getElementById('transactions-body');
+        const totalIncomeEl = document.getElementById('total-income');
+        const totalExpenseEl = document.getElementById('total-expense');
+        const balanceEl = document.getElementById('balance');
+        const exportBtn = document.getElementById('export-csv');
+        
+        // Categories
+        const categories = {
+            income: ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other Income'],
+            expense: ['Food', 'Transportation', 'Housing', 'Utilities', 'Healthcare', 
+                     'Entertainment', 'Education', 'Shopping', 'Other Expenses']
+        };
+        
+        // Chart instances
+        let categoryChart, monthlyChart;
+        
+        // Initialize the app
+        function init() {
+            // Set default date to today
+            dateInput.valueAsDate = new Date();
+            
+            // Load transactions from localStorage
+            loadTransactions();
+            
+            // Update summary
+            updateSummary();
+            
+            // Render charts
+            renderCharts();
+            
+            // Event listeners
+            typeSelect.addEventListener('change', updateCategories);
+            transactionForm.addEventListener('submit', addTransaction);
+            exportBtn.addEventListener('click', exportToCSV);
+        }
+        
+        // Update category dropdown based on type selection
+        function updateCategories() {
+            const type = typeSelect.value;
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            
+            if (type) {
+                categories[type].forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Add a new transaction
+        function addTransaction(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: Date.now(),
+                type: typeSelect.value,
+                category: categorySelect.value,
+                amount: parseFloat(amountInput.value),
+                date: dateInput.value,
+                description: descriptionInput.value
+            };
+            
+            // Get existing transactions
+            const transactions = getTransactions();
+            
+            // Add new transaction
+            transactions.push(transaction);
+            
+            // Save to localStorage
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Reset form
+            transactionForm.reset();
+            dateInput.valueAsDate = new Date();
+            
+            // Reload transactions
+            loadTransactions();
+            updateSummary();
+            renderCharts();
+        }
+        
+        // Load transactions from localStorage
+        function loadTransactions() {
+            const transactions = getTransactions();
+            transactionsBody.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                transactionsBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No transactions yet</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display transactions
+            transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.className = `${transaction.type}-row`;
+                row.innerHTML = `
+                    <td>${formatDate(transaction.date)}</td>
+                    <td>${transaction.description || '-'}</td>
+                    <td>${transaction.category}</td>
+                    <td>${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}</td>
+                    <td class="action-buttons">
+                        <button class="action-btn btn-danger" onclick="deleteTransaction(${transaction.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+                transactionsBody.appendChild(row);
+            });
+        }
+        
+        // Delete a transaction
+        function deleteTransaction(id) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                const transactions = getTransactions().filter(t => t.id !== id);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                loadTransactions();
+                updateSummary();
+                renderCharts();
+            }
+        }
+        
+        // Get all transactions from localStorage
+        function getTransactions() {
+            return JSON.parse(localStorage.getItem('transactions')) || [];
+        }
+        
+        // Update summary cards
+        function updateSummary() {
+            const transactions = getTransactions();
+            
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalExpense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const balance = totalIncome - totalExpense;
+            
+            totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+            totalExpenseEl.textContent = `$${totalExpense.toFixed(2)}`;
+            balanceEl.textContent = `$${balance.toFixed(2)}`;
+        }
+        
+        // Render charts
+        function renderCharts() {
+            const transactions = getTransactions();
+            
+            // Expense by category chart
+            const expenseCategories = {};
+            categories.expense.forEach(cat => expenseCategories[cat] = 0);
+            
+            transactions
+                .filter(t => t.type === 'expense')
+                .forEach(t => {
+                    expenseCategories[t.category] += t.amount;
+                });
+            
+            const categoryCtx = document.getElementById('category-chart').getContext('2d');
+            
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+            
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(expenseCategories),
+                    datasets: [{
+                        data: Object.values(expenseCategories),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                            '#9966FF', '#FF9F40', '#8AC24A', '#607D8B'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+            
+            // Monthly summary chart
+            const monthlyData = {};
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            
+            // Initialize with all months of current year
+            for (let month = 0; month < 12; month++) {
+                monthlyData[month] = { income: 0, expense: 0 };
+            }
+            
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                if (date.getFullYear() === currentYear) {
+                    const month = date.getMonth();
+                    monthlyData[month][t.type] += t.amount;
+                }
+            });
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            monthlyChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: months.map((_, i) => monthlyData[i].income),
+                            backgroundColor: '#4cc9f0',
+                            stack: 'stack',
+                        },
+                        {
+                            label: 'Expense',
+                            data: months.map((_, i) => monthlyData[i].expense * -1),
+                            backgroundColor: '#f72585',
+                            stack: 'stack',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + Math.abs(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += '$' + Math.abs(context.rawValue).toFixed(2);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Export transactions to CSV
+        function exportToCSV() {
+            const transactions = getTransactions();
+            
+            if (transactions.length === 0) {
+                alert('No transactions to export');
+                return;
+            }
+            
+            // CSV header
+            let csv = 'Type,Category,Amount,Date,Description\n';
+            
+            // Add transactions
+            transactions.forEach(t => {
+                csv += `${t.type},${t.category},${t.amount},"${formatDate(t.date)}","${t.description || ''}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `transactions_${formatDate(new Date())}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // Format date as MM/DD/YYYY
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US');
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
