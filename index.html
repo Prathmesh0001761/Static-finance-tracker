@@ -4,365 +4,373 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Finance Tracker</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background: #f4f4f4;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h1, h2 {
-      text-align: center;
-    }
-
-    form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    input, select, button {
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-
-    th, td {
-      padding: 0.75rem;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .income-row td { color: green; }
-    .expense-row td { color: red; }
-
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      margin: 1rem 0;
-    }
-
-    canvas {
-      margin-top: 2rem;
-      width: 100%;
-      height: 300px;
-    }
-
-    .action-buttons button {
-      border: none;
-      padding: 0.4rem 0.7rem;
-      cursor: pointer;
-      color: white;
-      border-radius: 4px;
-    }
-
-    .btn-danger {
-      background-color: #e63946;
-    }
-
-    #export-csv {
-      background: #457b9d;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-  </style>
+  <!-- Using CDN for Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Using CDN for Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Using CDN for Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>Personal Finance Tracker</h1>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="container max-w-4xl w-full bg-white rounded-2xl shadow-xl p-8">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Personal Finance Tracker</h1>
 
-    <form id="transaction-form">
-      <select id="type" required>
+    <form id="transaction-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <select id="type" class="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
         <option value="">Select Type</option>
         <option value="income">Income</option>
         <option value="expense">Expense</option>
       </select>
-      <select id="category" required>
+      <select id="category" class="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
         <option value="">Select Category</option>
       </select>
-      <input type="number" id="amount" placeholder="Amount" required />
-      <input type="date" id="date" required />
-      <input type="text" id="description" placeholder="Description (optional)" />
-      <button type="submit">Add</button>
+      <input type="number" id="amount" placeholder="Amount" min="0" step="0.01" class="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required />
+      <input type="date" id="date" class="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required />
+      <input type="text" id="description" placeholder="Description (optional)" class="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+      <button type="submit" class="p-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">Add Transaction</button>
     </form>
 
-    <div class="summary">
-      <div><strong>Income:</strong> <span id="total-income">$0.00</span></div>
-      <div><strong>Expense:</strong> <span id="total-expense">$0.00</span></div>
-      <div><strong>Balance:</strong> <span id="balance">$0.00</span></div>
+    <div class="summary flex flex-col sm:flex-row justify-between mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+      <div class="text-center sm:text-left mb-4 sm:mb-0">
+        <strong class="text-gray-600">Income:</strong>
+        <span id="total-income" class="text-green-600 font-semibold">$0.00</span>
+      </div>
+      <div class="text-center sm:text-left mb-4 sm:mb-0">
+        <strong class="text-gray-600">Expense:</strong>
+        <span id="total-expense" class="text-red-600 font-semibold">$0.00</span>
+      </div>
+      <div class="text-center sm:text-left">
+        <strong class="text-gray-600">Balance:</strong>
+        <span id="balance" class="text-blue-600 font-semibold">$0.00</span>
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Category</th>
-          <th>Amount</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="transactions-body">
-        <!-- JS will populate -->
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-4 text-left text-gray-700">Date</th>
+            <th class="p-4 text-left text-gray-700">Description</th>
+            <th class="p-4 text-left text-gray-700">Category</th>
+            <th class="p-4 text-left text-gray-700">Amount</th>
+            <th class="p-4 text-left text-gray-700">Action</th>
+          </tr>
+        </thead>
+        <tbody id="transactions-body" class="divide-y divide-gray-200">
+          <!-- JS will populate -->
+        </tbody>
+      </table>
+    </div>
 
-    <button id="export-csv"><i class="fas fa-download"></i> Export CSV</button>
+    <button id="export-csv" class="mt-6 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center">
+      <i class="fas fa-download mr-2"></i> Export CSV
+    </button>
 
-    <canvas id="category-chart"></canvas>
-    <canvas id="monthly-chart"></canvas>
+    <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Expense by Category</h2>
+        <canvas id="category-chart"></canvas>
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Overview</h2>
+        <canvas id="monthly-chart"></canvas>
+      </div>
+    </div>
   </div>
 
-  
-      <script>
-        const transactionForm = document.getElementById('transaction-form');
-        const typeSelect = document.getElementById('type');
-        const categorySelect = document.getElementById('category');
-        const amountInput = document.getElementById('amount');
-        const dateInput = document.getElementById('date');
-        const descriptionInput = document.getElementById('description');
-        const transactionsBody = document.getElementById('transactions-body');
-        const totalIncomeEl = document.getElementById('total-income');
-        const totalExpenseEl = document.getElementById('total-expense');
-        const balanceEl = document.getElementById('balance');
-        const exportBtn = document.getElementById('export-csv');
+  <script>
+    // DOM elements
+    const transactionForm = document.getElementById('transaction-form');
+    const typeSelect = document.getElementById('type');
+    const categorySelect = document.getElementById('category');
+    const amountInput = document.getElementById('amount');
+    const dateInput = document.getElementById('date');
+    const descriptionInput = document.getElementById('description');
+    const transactionsBody = document.getElementById('transactions-body');
+    const totalIncomeEl = document.getElementById('total-income');
+    const totalExpenseEl = document.getElementById('total-expense');
+    const balanceEl = document.getElementById('balance');
+    const exportBtn = document.getElementById('export-csv');
 
-        const categories = {
-            income: ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other Income'],
-            expense: ['Food', 'Transportation', 'Housing', 'Utilities', 'Healthcare', 'Entertainment', 'Education', 'Shopping', 'Other Expenses']
+    // Categories for income and expense
+    const categories = {
+      income: ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other Income'],
+      expense: ['Food', 'Transportation', 'Housing', 'Utilities', 'Healthcare', 'Entertainment', 'Education', 'Shopping', 'Other Expenses']
+    };
+
+    let categoryChart, monthlyChart;
+
+    function init() {
+      try {
+        // Set default date to today
+        const today = new Date();
+        const offset = today.getTimezoneOffset();
+        const localDate = new Date(today.getTime() - offset * 60 * 1000);
+        dateInput.value = localDate.toISOString().split('T')[0];
+
+        // Load and render data
+        loadTransactions();
+        updateSummary();
+        renderCharts();
+
+        // Event listeners
+        typeSelect.addEventListener('change', updateCategories);
+        transactionForm.addEventListener('submit', addTransaction);
+        exportBtn.addEventListener('click', exportToCSV);
+      } catch (error) {
+        console.error('Initialization failed:', error);
+        alert('Failed to initialize the application. Please try refreshing the page.');
+      }
+    }
+
+    function updateCategories() {
+      try {
+        const type = typeSelect.value;
+        categorySelect.innerHTML = '<option value="">Select Category</option>';
+
+        if (type) {
+          categories[type].forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to update categories:', error);
+      }
+    }
+
+    function addTransaction(e) {
+      e.preventDefault();
+      try {
+        const transaction = {
+          id: Date.now(),
+          type: typeSelect.value,
+          category: categorySelect.value,
+          amount: parseFloat(amountInput.value),
+          date: dateInput.value,
+          description: descriptionInput.value
         };
 
-        let categoryChart, monthlyChart;
-
-        function init() {
-            const today = new Date();
-            const offset = today.getTimezoneOffset();
-            const localDate = new Date(today.getTime() - offset * 60 * 1000);
-            dateInput.value = localDate.toISOString().split('T')[0];
-
-            loadTransactions();
-            updateSummary();
-            renderCharts();
-
-            typeSelect.addEventListener('change', updateCategories);
-            transactionForm.addEventListener('submit', addTransaction);
-            exportBtn.addEventListener('click', exportToCSV);
+        if (isNaN(transaction.amount) || transaction.amount <= 0) {
+          alert('Please enter a valid amount.');
+          return;
         }
 
-        function updateCategories() {
-            const type = typeSelect.value;
-            categorySelect.innerHTML = '<option value="">Select Category</option>';
+        const transactions = getTransactions();
+        transactions.push(transaction);
+        localStorage.setItem('transactions', JSON.stringify(transactions));
 
-            if (type) {
-                categories[type].forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category;
-                    categorySelect.appendChild(option);
-                });
-            }
-        }
-
-        function addTransaction(e) {
-            e.preventDefault();
-
-            const transaction = {
-                id: Date.now(),
-                type: typeSelect.value,
-                category: categorySelect.value,
-                amount: parseFloat(amountInput.value),
-                date: dateInput.value,
-                description: descriptionInput.value
-            };
-
-            const transactions = getTransactions();
-            transactions.push(transaction);
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-
-            transactionForm.reset();
-            init();
-        }
-
-        function getTransactions() {
-            return JSON.parse(localStorage.getItem('transactions')) || [];
-        }
-
-        function loadTransactions() {
-            const transactions = getTransactions();
-            transactionsBody.innerHTML = '';
-
-            if (transactions.length === 0) {
-                transactionsBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No transactions yet</td></tr>';
-                return;
-            }
-
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            transactions.forEach(transaction => {
-                const row = document.createElement('tr');
-                row.className = ${transaction.type}-row;
-                row.innerHTML = 
-                    <td>${formatDate(transaction.date)}</td>
-                    <td>${transaction.description || '-'}</td>
-                    <td>${transaction.category}</td>
-                    <td>${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}</td>
-                    <td class="action-buttons">
-                        <button class="action-btn btn-danger" onclick="deleteTransaction(${transaction.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </td>
-                ;
-                transactionsBody.appendChild(row);
-            });
-        }
-
-        function deleteTransaction(id) {
-            if (confirm('Are you sure you want to delete this transaction?')) {
-                const transactions = getTransactions().filter(t => t.id !== id);
-                localStorage.setItem('transactions', JSON.stringify(transactions));
-                init();
-            }
-        }
-
-        function updateSummary() {
-            const transactions = getTransactions();
-            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const balance = totalIncome - totalExpense;
-
-            totalIncomeEl.textContent = $${totalIncome.toFixed(2)};
-            totalExpenseEl.textContent = $${totalExpense.toFixed(2)};
-            balanceEl.textContent = $${balance.toFixed(2)};
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function renderCharts() {
-            const transactions = getTransactions();
-            const expenseCategories = {};
-            categories.expense.forEach(cat => expenseCategories[cat] = 0);
-
-            transactions.filter(t => t.type === 'expense').forEach(t => {
-                expenseCategories[t.category] += t.amount;
-            });
-
-            const categoryCtx = document.getElementById('category-chart').getContext('2d');
-            if (categoryChart) categoryChart.destroy();
-            categoryChart = new Chart(categoryCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(expenseCategories),
-                    datasets: [{
-                        data: Object.values(expenseCategories),
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                            '#9966FF', '#FF9F40', '#8AC24A', '#607D8B'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'right'
-                        }
-                    }
-                }
-            });
-
-            const monthlyData = {};
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            for (let i = 0; i < 12; i++) monthlyData[i] = { income: 0, expense: 0 };
-            transactions.forEach(t => {
-                const d = new Date(t.date);
-                if (d.getFullYear() === currentYear) {
-                    monthlyData[d.getMonth()][t.type] += t.amount;
-                }
-            });
-
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
-            if (monthlyChart) monthlyChart.destroy();
-            monthlyChart = new Chart(monthlyCtx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Income',
-                            data: months.map((_, i) => monthlyData[i].income),
-                            backgroundColor: '#4cc9f0'
-                        },
-                        {
-                            label: 'Expense',
-                            data: months.map((_, i) => monthlyData[i].expense),
-                            backgroundColor: '#f72585'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        function exportToCSV() {
-            const transactions = getTransactions();
-            let csv = 'Date,Description,Category,Type,Amount\n';
-            transactions.forEach(t => {
-                csv += ${t.date},"${t.description}",${t.category},${t.type},${t.amount}\n;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'transactions.csv';
-            a.click();
-        }
-
+        transactionForm.reset();
         init();
-    </script>
+      } catch (error) {
+        console.error('Failed to add transaction:', error);
+        alert('Failed to add transaction. Please try again.');
+      }
+    }
+
+    function getTransactions() {
+      try {
+        return JSON.parse(localStorage.getItem('transactions')) || [];
+      } catch (error) {
+        console.error('Failed to get transactions:', error);
+        return [];
+      }
+    }
+
+    function loadTransactions() {
+      try {
+        const transactions = getTransactions();
+        transactionsBody.innerHTML = '';
+
+        if (transactions.length === 0) {
+          transactionsBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No transactions yet</td></tr>';
+          return;
+        }
+
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        transactions.forEach(transaction => {
+          const row = document.createElement('tr');
+          row.className = `${transaction.type}-row hover:bg-gray-50 transition-colors duration-150`;
+          row.innerHTML = `
+            <td class="p-4">${formatDate(transaction.date)}</td>
+            <td class="p-4">${transaction.description || '-'}</td>
+            <td class="p-4">${transaction.category}</td>
+            <td class="p-4 ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+              ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+            </td>
+            <td class="p-4">
+              <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200" onclick="deleteTransaction(${transaction.id})">
+                <i class="fas fa-trash mr-2"></i> Delete
+              </button>
+            </td>
+          `;
+          transactionsBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Failed to load transactions:', error);
+        transactionsBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Error loading transactions</td></tr>';
+      }
+    }
+
+    function deleteTransaction(id) {
+      try {
+        if (confirm('Are you sure you want to delete this transaction?')) {
+          const transactions = getTransactions().filter(t => t.id !== id);
+          localStorage.setItem('transactions', JSON.stringify(transactions));
+          init();
+        }
+      } catch (error) {
+        console.error('Failed to delete transaction:', error);
+        alert('Failed to delete transaction. Please try again.');
+      }
+    }
+
+    function updateSummary() {
+      try {
+        const transactions = getTransactions();
+        const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const balance = totalIncome - totalExpense;
+
+        totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+        totalExpenseEl.textContent = `$${totalExpense.toFixed(2)}`;
+        balanceEl.textContent = `$${balance.toFixed(2)}`;
+      } catch (error) {
+        console.error('Failed to update summary:', error);
+        totalIncomeEl.textContent = 'Error';
+        totalExpenseEl.textContent = 'Error';
+        balanceEl.textContent = 'Error';
+      }
+    }
+
+    function formatDate(dateString) {
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (error) {
+        console.error('Failed to format date:', error);
+        return dateString;
+      }
+    }
+
+    function renderCharts() {
+      try {
+        const transactions = getTransactions();
+        const expenseCategories = {};
+        categories.expense.forEach(cat => expenseCategories[cat] = 0);
+
+        transactions.filter(t => t.type === 'expense').forEach(t => {
+          expenseCategories[t.category] += t.amount;
+        });
+
+        const categoryCtx = document.getElementById('category-chart').getContext('2d');
+        if (categoryChart) categoryChart.destroy();
+        categoryChart = new Chart(categoryCtx, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(expenseCategories),
+            datasets: [{
+              data: Object.values(expenseCategories),
+              backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                '#9966FF', '#FF9F40', '#8AC24A', '#607D8B'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right'
+              }
+            }
+          }
+        });
+
+        const monthlyData = {};
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        for (let i = 0; i < 12; i++) monthlyData[i] = { income: 0, expense: 0 };
+        transactions.forEach(t => {
+          const d = new Date(t.date);
+          if (d.getFullYear() === currentYear) {
+            monthlyData[d.getMonth()][t.type] += t.amount;
+          }
+        });
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
+        if (monthlyChart) monthlyChart.destroy();
+        monthlyChart = new Chart(monthlyCtx, {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [
+              {
+                label: 'Income',
+                data: months.map((_, i) => monthlyData[i].income),
+                backgroundColor: '#4cc9f0'
+              },
+              {
+                label: 'Expense',
+                data: months.map((_, i) => monthlyData[i].expense),
+                backgroundColor: '#f72585'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Failed to render charts:', error);
+        document.getElementById('category-chart').parentElement.innerHTML = '<p class="text-center text-gray-500">Error rendering chart</p>';
+        document.getElementById('monthly-chart').parentElement.innerHTML = '<p class="text-center text-gray-500">Error rendering chart</p>';
+      }
+    }
+
+    function exportToCSV() {
+      try {
+        const transactions = getTransactions();
+        let csv = 'Date,Description,Category,Type,Amount\n';
+        transactions.forEach(t => {
+          // Escape quotes in description to handle CSV formatting
+          const description = t.description ? `"${t.description.replace(/"/g, '""')}"` : '';
+          csv += `${t.date},${description},${t.category},${t.type},${t.amount}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transactions.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Failed to export CSV:', error);
+        alert('Failed to export CSV. Please try again.');
+      }
+    }
+
+    // Initialize the app
+    init();
+  </script>
 </body>
 </html>
