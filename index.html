@@ -1,21 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Finance Tracker</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Styles omitted for brevity — assume this section is the same as your original */
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal Finance Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    input, select, button {
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .income-row td { color: green; }
+    .expense-row td { color: red; }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      margin: 1rem 0;
+    }
+
+    canvas {
+      margin-top: 2rem;
+      width: 100%;
+      height: 300px;
+    }
+
+    .action-buttons button {
+      border: none;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+      color: white;
+      border-radius: 4px;
+    }
+
+    .btn-danger {
+      background-color: #e63946;
+    }
+
+    #export-csv {
+      background: #457b9d;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Same HTML structure as before -->
+  <div class="container">
+    <h1>Personal Finance Tracker</h1>
+
+    <form id="transaction-form">
+      <select id="type" required>
+        <option value="">Select Type</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <select id="category" required>
+        <option value="">Select Category</option>
+      </select>
+      <input type="number" id="amount" placeholder="Amount" required />
+      <input type="date" id="date" required />
+      <input type="text" id="description" placeholder="Description (optional)" />
+      <button type="submit">Add</button>
+    </form>
+
+    <div class="summary">
+      <div><strong>Income:</strong> <span id="total-income">$0.00</span></div>
+      <div><strong>Expense:</strong> <span id="total-expense">$0.00</span></div>
+      <div><strong>Balance:</strong> <span id="balance">$0.00</span></div>
     </div>
 
-    <script>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="transactions-body">
+        <!-- JS will populate -->
+      </tbody>
+    </table>
+
+    <button id="export-csv"><i class="fas fa-download"></i> Export CSV</button>
+
+    <canvas id="category-chart"></canvas>
+    <canvas id="monthly-chart"></canvas>
+  </div>
+
+  
+      <script>
         const transactionForm = document.getElementById('transaction-form');
         const typeSelect = document.getElementById('type');
         const categorySelect = document.getElementById('category');
@@ -101,8 +222,8 @@
 
             transactions.forEach(transaction => {
                 const row = document.createElement('tr');
-                row.className = `${transaction.type}-row`;
-                row.innerHTML = `
+                row.className = ${transaction.type}-row;
+                row.innerHTML = 
                     <td>${formatDate(transaction.date)}</td>
                     <td>${transaction.description || '-'}</td>
                     <td>${transaction.category}</td>
@@ -112,7 +233,7 @@
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
-                `;
+                ;
                 transactionsBody.appendChild(row);
             });
         }
@@ -131,9 +252,9 @@
             const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
             const balance = totalIncome - totalExpense;
 
-            totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
-            totalExpenseEl.textContent = `$${totalExpense.toFixed(2)}`;
-            balanceEl.textContent = `$${balance.toFixed(2)}`;
+            totalIncomeEl.textContent = $${totalIncome.toFixed(2)};
+            totalExpenseEl.textContent = $${totalExpense.toFixed(2)};
+            balanceEl.textContent = $${balance.toFixed(2)};
         }
 
         function formatDate(dateString) {
@@ -230,7 +351,7 @@
             const transactions = getTransactions();
             let csv = 'Date,Description,Category,Type,Amount\n';
             transactions.forEach(t => {
-                csv += `${t.date},"${t.description}",${t.category},${t.type},${t.amount}\n`;
+                csv += ${t.date},"${t.description}",${t.category},${t.type},${t.amount}\n;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
